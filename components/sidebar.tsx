@@ -7,28 +7,32 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/auth-context"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { LayoutDashboard, Trophy, Users, Menu, X, LogOut, BarChart3 } from "lucide-react"
+import { LayoutDashboard, Trophy, Users, Menu, X, LogOut, BarChart3, LogIn } from "lucide-react"
 
 const navigation = [
   {
     name: "Dashboard",
-    href: "/",
+    href: "/dashboard",
     icon: LayoutDashboard,
+    requiresAuth: true,
   },
   {
     name: "Torneos",
     href: "/tournaments",
     icon: Trophy,
+    requiresAuth: true,
   },
   {
     name: "Jugadores",
     href: "/players",
     icon: Users,
+    requiresAuth: false,
   },
   {
     name: "Ranking",
     href: "/players/ranking",
     icon: BarChart3,
+    requiresAuth: false,
   },
 ]
 
@@ -41,6 +45,8 @@ export function Sidebar() {
     logout()
     setIsOpen(false)
   }
+
+  const visibleNavigation = navigation.filter((item) => !item.requiresAuth || isAuthenticated)
 
   return (
     <>
@@ -76,7 +82,7 @@ export function Sidebar() {
 
           {/* Navigation */}
           <nav className="flex-1 px-4 py-6 space-y-2">
-            {navigation.map((item) => {
+            {visibleNavigation.map((item) => {
               const isActive = pathname === item.href
               return (
                 <Link
@@ -97,28 +103,42 @@ export function Sidebar() {
             })}
           </nav>
 
-          {isAuthenticated && user && (
-            <div className="px-4 py-4 border-t border-sidebar-border">
-              <div className="flex items-center gap-3 px-3 py-2 mb-2">
-                <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
-                  <span className="text-sm font-medium text-primary">{user.username.charAt(0).toUpperCase()}</span>
+          {/* Authentication Section */}
+          <div className="px-4 py-4 border-t border-sidebar-border">
+            {isAuthenticated && user ? (
+              <>
+                <div className="flex items-center gap-3 px-3 py-2 mb-2">
+                  <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
+                    <span className="text-sm font-medium text-primary">{user.username.charAt(0).toUpperCase()}</span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-sidebar-foreground">{user.username}</p>
+                    <p className="text-xs text-muted-foreground">Administrador</p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-sidebar-foreground">{user.username}</p>
-                  <p className="text-xs text-muted-foreground">Administrador</p>
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                onClick={handleLogout}
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Cerrar Sesión
-              </Button>
-            </div>
-          )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Cerrar Sesión
+                </Button>
+              </>
+            ) : (
+              <Link href="/login" onClick={() => setIsOpen(false)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Iniciar Sesión
+                </Button>
+              </Link>
+            )}
+          </div>
 
           {/* Footer */}
           <div className="px-6 py-4 border-t border-sidebar-border">
