@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/auth-context"
@@ -39,11 +39,15 @@ const navigation = [
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
+  // LÍNEA AÑADIDA (2): Inicializamos useRouter
+  const router = useRouter() 
   const { isAuthenticated, logout, user } = useAuth()
 
   const handleLogout = () => {
     logout()
     setIsOpen(false)
+     // LÍNEA AÑADIDA (3): Redirigimos a la landing page (/)
+    router.push("/")
   }
 
   const visibleNavigation = navigation.filter((item) => !item.requiresAuth || isAuthenticated)
