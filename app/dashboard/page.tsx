@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Trophy, Users, Calendar, TrendingUp, Eye, Plus, CheckCircle } from "lucide-react"
+import Link from "next/link";
 
 export default function Dashboard() {
   return (
@@ -80,10 +81,12 @@ export default function Dashboard() {
           <CardHeader>
             <div className="flex items-center justify-between flex-wrap gap-2"> {/* Agregado flex-wrap y gap-2 */}
               <CardTitle className="text-card-foreground">Torneos Recientes</CardTitle>
-              <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
-                <Plus className="w-4 h-4 mr-2" />
-                Nuevo Torneo
-              </Button>
+                <Link href="/tournaments/create" passHref>
+                    <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
+                       <Plus className="w-4 h-4 mr-2" />
+                       Nuevo Torneo
+                    </Button>
+                </Link>
             </div>
           </CardHeader>
           <CardContent>

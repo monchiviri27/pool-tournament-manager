@@ -1,3 +1,6 @@
+"use client"; // NECESARIO para usar useState (Client Component)
+
+import { useState } from 'react'; // Necesario para la funcionalidad de búsqueda
 import { Sidebar } from "@/components/sidebar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -7,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Search, Plus, Trophy, TrendingUp, Target } from "lucide-react"
 import Link from "next/link"
 
+// Datos simulados (DEBERÍAN VENIR DE UNA API EN PRODUCCIÓN)
 const mockPlayers = [
   {
     id: "carlos-mendez",
@@ -77,6 +81,13 @@ const mockPlayers = [
 ]
 
 export default function PlayersPage() {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Lógica de Filtrado: Filtra por nombre
+  const filteredPlayers = mockPlayers.filter(player =>
+    player.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-background">
       <Sidebar />
@@ -89,22 +100,30 @@ export default function PlayersPage() {
               <h1 className="text-3xl font-bold text-foreground mb-2">Jugadores</h1>
               <p className="text-muted-foreground">Estadísticas y perfiles de jugadores</p>
             </div>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-              <Plus className="w-4 h-4 mr-2" />
-              Agregar Jugador
-            </Button>
+            {/* Botón AGREGAR JUGADOR conectado a la ruta /players/add */}
+            <Link href="/players/add" passHref>
+                <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Agregar Jugador
+                </Button>
+            </Link>
           </div>
 
-          {/* Search */}
+          {/* Search Input con funcionalidad */}
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <Input placeholder="Buscar jugadores..." className="pl-10 bg-input border-border" />
+            <Input 
+              placeholder="Buscar jugadores..." 
+              className="pl-10 bg-input border-border" 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
         </div>
 
         {/* Players Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {mockPlayers.map((player) => (
+          {filteredPlayers.map((player) => (
             <Card key={player.id} className="bg-card border-border hover:border-primary/50 transition-colors">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
@@ -175,9 +194,9 @@ export default function PlayersPage() {
                   </div>
                 </div>
 
-                {/* View Profile Button */}
+                {/* View Profile Button - ENLACE FUNCIONAL A [id] */}
                 <div className="pt-2">
-                  <Link href={`/players/${player.id}`}>
+                  <Link href={`/players/${player.id}`} passHref>
                     <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
                       Ver Perfil Completo
                     </Button>
@@ -186,8 +205,14 @@ export default function PlayersPage() {
               </CardContent>
             </Card>
           ))}
+           {/* Manejo de Cero Resultados */}
+           {filteredPlayers.length === 0 && searchTerm.length > 0 && (
+            <div className="col-span-full text-center p-8 text-muted-foreground bg-card rounded-lg border border-border">
+              No se encontraron jugadores que coincidan con "{searchTerm}".
+            </div>
+          )}
         </div>
       </main>
     </div>
-  )
+  );
 }

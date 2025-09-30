@@ -20,10 +20,12 @@ export default function TournamentsPage() {
                 <h1 className="text-3xl font-bold text-foreground mb-2">Torneos</h1>
                 <p className="text-muted-foreground">Gestiona y visualiza todos los torneos</p>
               </div>
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-                <Plus className="w-4 h-4 mr-2" />
-                Crear Torneo
-              </Button>
+                 <Link href="/tournaments/create">
+                    <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Crear Torneo
+                    </Button>
+                 </Link>   
             </div>
           </div>
 

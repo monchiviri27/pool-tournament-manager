@@ -5,11 +5,29 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { useAuth } from "@/lib/auth-context"
+// Asumo que tu useAuth está en esta ruta y devuelve user, isAuthenticated, y logout
+import { useAuth } from "@/lib/auth-context" 
 import { ThemeToggle } from "@/components/theme-toggle"
-import { LayoutDashboard, Trophy, Users, Menu, X, LogOut, BarChart3, LogIn } from "lucide-react"
+import { 
+  LayoutDashboard, 
+  Trophy, 
+  Users, 
+  Menu, 
+  X, // Asegúrate de que X y Menu estén importados
+  LogOut, 
+  BarChart3, 
+  LogIn, 
+  Home 
+} from "lucide-react"
 
+// Definición de las rutas de navegación
 const navigation = [
+  {
+    name: "Inicio",
+    href: "/",
+    icon: Home, 
+    requiresAuth: false,
+  },
   {
     name: "Dashboard",
     href: "/dashboard",
@@ -20,7 +38,7 @@ const navigation = [
     name: "Torneos",
     href: "/tournaments",
     icon: Trophy,
-    requiresAuth: true,
+    requiresAuth: true, 
   },
   {
     name: "Jugadores",
@@ -38,15 +56,16 @@ const navigation = [
 
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false) 
   const pathname = usePathname()
-  // LÍNEA AÑADIDA (2): Inicializamos useRouter
   const router = useRouter() 
-  const { isAuthenticated, logout, user } = useAuth()
+  const { isAuthenticated, logout, user } = useAuth() 
 
-  const handleLogout = () => {
-    logout()
+  const handleLogout = async () => {
+    setIsLoggingOut(true) 
+    await logout() 
+    setIsLoggingOut(false)
     setIsOpen(false)
-     // LÍNEA AÑADIDA (3): Redirigimos a la landing page (/)
     router.push("/")
   }
 
@@ -54,25 +73,32 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile menu button */}
+      {/* Mobile menu button (Menú Hamburguesa/X) - FUNCIONALIDAD DE OCULTAR RESTAURADA */}
       <Button
         variant="ghost"
         size="icon"
-        className="fixed top-4 left-4 z-50 md:hidden bg-card"
+        // Ubicación y z-index correcto para no ser tapado por el sidebar
+        className="fixed top-4 left-4 z-20 md:hidden bg-card shadow-md border border-border"
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen} 
+        aria-controls="main-sidebar" 
       >
+        {/* Lógica de ÍCONO RESTAURADA */}
         {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </Button>
 
-      {/* Sidebar */}
+      {/* Sidebar - Contenido principal */}
       <div
+        id="main-sidebar" 
         className={cn(
+          // Sidebar tiene z-40 (por encima de los iconos y el overlay)
           "fixed inset-y-0 left-0 z-40 w-64 bg-sidebar border-r border-sidebar-border transform transition-transform duration-200 ease-in-out md:translate-x-0",
           isOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <div className="flex flex-col h-full">
-          {/* Logo */}
+          
+          {/* Logo y Theme Toggle */}
           <div className="flex items-center gap-2 px-6 py-6 border-b border-sidebar-border">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <Trophy className="w-5 h-5 text-primary-foreground" />
@@ -84,7 +110,7 @@ export function Sidebar() {
             <ThemeToggle />
           </div>
 
-          {/* Navigation */}
+          {/* Navigation Links */}
           <nav className="flex-1 px-4 py-6 space-y-2">
             {visibleNavigation.map((item) => {
               const isActive = pathname === item.href
@@ -98,7 +124,7 @@ export function Sidebar() {
                       ? "bg-sidebar-primary text-sidebar-primary-foreground"
                       : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                   )}
-                  onClick={() => setIsOpen(false)}
+                  onClick={() => setIsOpen(false)} // Cierra el menú al hacer click
                 >
                   <item.icon className="w-5 h-5" />
                   {item.name}
@@ -125,9 +151,10 @@ export function Sidebar() {
                   size="sm"
                   className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   onClick={handleLogout}
+                  disabled={isLoggingOut} 
                 >
                   <LogOut className="w-4 h-4 mr-2" />
-                  Cerrar Sesión
+                  {isLoggingOut ? 'Cerrando Sesión...' : 'Cerrar Sesión'}
                 </Button>
               </>
             ) : (
@@ -146,12 +173,13 @@ export function Sidebar() {
 
           {/* Footer */}
           <div className="px-6 py-4 border-t border-sidebar-border">
-            <p className="text-xs text-muted-foreground">© 2025 Pool Tournament Manager</p>
+            <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Pool Tournament Manager</p>
           </div>
         </div>
       </div>
 
-      {/* Overlay for mobile */}
+      {/* Overlay for mobile (capa oscura para cerrar al tocar fuera) */}
+      {/* El Overlay tiene z-30 (por debajo del sidebar z-40, por encima del botón z-20) */}
       {isOpen && <div className="fixed inset-0 z-30 bg-black/50 md:hidden" onClick={() => setIsOpen(false)} />}
     </>
   )
